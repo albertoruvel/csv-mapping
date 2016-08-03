@@ -29,9 +29,9 @@ public class CSVUtils {
      * @throws FileNotFoundException
      * @throws IOException 
      */
-    private static Iterable<CSVRecord> readFile(File file)throws FileNotFoundException, IOException{
-        FileReader fileReader = new FileReader(file); 
+    private static Iterable<CSVRecord> readFile(FileReader fileReader)throws FileNotFoundException, IOException{ 
         CSVFormat csvFileFormat = CSVFormat.DEFAULT.withHeader().withIgnoreSurroundingSpaces(true);
+         
         return new CSVParser(fileReader, csvFileFormat);
     }
 
@@ -75,7 +75,8 @@ public class CSVUtils {
      */
     public static <T> List<T> readFile(List<CSVMapping> mappings, File file, Class<T> aClass) throws Exception{
         //read file 
-        Iterable<CSVRecord> records = readFile(file); 
+        FileReader reader = new FileReader(file); 
+        Iterable<CSVRecord> records = readFile(reader); 
         List<T> list = new ArrayList(); 
         T instance;
         Field field;
@@ -88,9 +89,11 @@ public class CSVUtils {
                 field.setAccessible(true);
                 csvValue = record.get(mapping.getCsvFieldName()); 
                 setFieldValue(field, csvValue, instance);
+                field.setAccessible(false);
             }
             list.add(instance);
         }
+        reader.close();
         return list; 
     }
 }
